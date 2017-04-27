@@ -1,0 +1,30 @@
+{
+	"manifest_version": 2,
+	"name" : "fyz_test",
+	"description" : "第一款测试",
+    "version": "1.0",
+	"icons": {
+    "16": "sources/icon.png",
+    "48": "sources/icon.png",
+    "128": "sources/icon.png"
+    },
+  	"browser_action" : {
+  		"default_title": "fyz_pop_title",
+  		"default_popup": "html/popup.html" 
+  	},
+  	"permissions" : [
+  		"contextMenus"
+  	],
+  	"background" : {
+  		"scripts" : [
+  			"js/menu.js"]
+  	},
+  	"content_scripts": [
+    {
+      "matches": [ 
+      	"http://*/*",
+        "https://*/*"],
+      "js": ["js/jquery.min.js", "js/tools.js"]
+    }
+  ]
+}
