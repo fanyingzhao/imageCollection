@@ -1,37 +1,98 @@
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse){
-	if (request.message === 'popPage') {
-		// 重复请求处理
+(function(){
+	// alert('bbb');
+	getImageList($('body')).each(function(index, element){
+		if (sizeIsStandard($(this))) {
+			createCollection(element);
+		}
+	});	
+})();
 
-		$('body').append('<div id=\"FY_WIDGETS\">	    <style>	        .widgets-main {	            background: rgba(229,229,229,.95);	            width: 100%;	            height: 100%;	            position: fixed;	            top: 0;	            left: 0;	        }	        .widgets-main .widgets-container {	            background: white;	            width: 500px;	            margin: 0px auto 0;	            overflow: scroll;	        }	        .widgets-container .header {	        	height: 40px;	        	border-top: 1px solid orange;	        	border-bottom: 1px solid gray;				padding: 0 20px;				line-height: 40px;				position: relative;	        }	        .widgets-container .header span {	        	color: black;	        	font-size: 18px;	        }	        .widgets-container .header i {	        	display: inline-block;	        	width: 15px;	        	height: 15px;	        	position: absolute;				background: red;				right: 20px;				top: 12.5px;	        }	        .widgets-container .middle {				margin: 20px 20px 10px;				border-bottom: 1px solid gray;				text-align: center;	        }	        .widgets-container .middle img {	        	width: 50px;	        	height: 50px;	        	margin: 0 auto;	        }	        .widgets-container .tag .info {				padding: 0 20px;	        }	        .widgets-container .tag .info i {	        	display: inline-block;	        	width: 10px;	        	height: 10px;	        	background: orange;	        }	        ul, li {	        	margin: 0;	        	padding: 0;	        }			.widgets-container .tag-list ul, .widgets-container .tag-list li {				list-style: none;				margin: 0;				padding: 0;			}	        .widgets-container .tag-list ul li {				float: left;				border: 1px solid gray;				margin-right: 10px;				padding: 2px 10px;	        }	        .widgets-container .tag-list ul li:first-child {	        	border: none;	        	padding: 2px 0;	        	margin-right: 0;	        }	        .widgets-container .tag-list {	        	padding: 20px 20px 0;	        }			.widgets-container .new {				margin-top: 20px;				padding: 0 20px;			}			.widgets-container .new i {				display: inline-block;				width: 10px;				height: 10px;				background: orange;			}			.widgets-container .bottom {				background: #f4f4f4;				height: 50px;				text-align: center;				vertical-align: middle;				margin-top: 20px;			}			.widgets-container .bottom span {				border: 1px solid black;				padding: 5px 20px;				background: white;				color: black;				font-weight: 800;				border-radius: 2px;				line-height: 50px;			}			.widgets-container .bottom span:first-child {				background: orange;				color: white;				margin-right: 10px;			}	    </style>	    <div class=\"widgets-main\">	        <div class=\"widgets-container\">	            <div class=\"header\">	            	<span>收藏</span>	            	<i></i>	            </div>	            <div class=\"middle\">	            	<img src=\"\" alt=\"\">	            	<p>收藏成功</p>	            </div>	            <div class=\"tag\">	            	<div class=\"info\">	            		<i></i>	            		<span>添加标签来管理你的收藏</span>	            	</div>	            	<div class=\"tag-list\">	            		<ul>	            			<li>我的标签：</li>	            			<li>html5</li>	            			<li>错误</li>	            			<li>IT</li>	            			<li>搞笑</li>	            			<li>购物</li>	            			<li>测试</li>	            		</ul>	            		<div style=\"clear:both;\"></div>	            	</div>	            	<div class=\"new\">	            		<i></i>	            		<span>创建新标签</span>	            	</div>	            </div>	            <div class=\"bottom\">	            	<span>添加</span>	            	<span>取消</span>	            </div>	        </div>	    </div>');
 
-		$('#FY_WIDGETS .bottom').find('span:first-child').css('background', 'red').on('click', function(){
-			var xhr = new XMLHttpRequest();
-			xhr.open("POST", "http://127.0.0.1:5000/api/images/add", true);
-			xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-			xhr.onreadystatechange = function() {
-			  if (xhr.readyState == 4) {
-			  	var res = JSON.parse(xhr.responseText);
-			    if (res['status']['code'] == 000) {
-			    	// 服务器处理成功
-			    	// 不再提示，直接消除
-			    	$('#FY_WIDGETS').animate({
-			    		opacity: 0
-			    	}, 500, function() {
-			    		$(this).remove();
-			    	});
-			    }else {
-			    	// 服务器处理失败
-			    	alert('请求处理失败');
-			    }
-			  }
-			}
-			xhr.send("imgUrl=" + request.resInfo.srcUrl + "&pageUrl=" + request.resInfo.pageUrl + "&linkUrl=" + request.resInfo.linkUrl);
-		});
-
-		sendResponse({
-			res: "bye"
-		});
+// tools
+// 找到一个容器中的所有图片，目前只寻找了img 标签，后期决定是否添加寻找背景图片
+function getImageList(container) {
+	return $(container).find('img');
+}
+// 元素大小是否符合标准，如果符合标准，则添加‘收藏’按钮
+function sizeIsStandard(element) {
+	if ($(element).width() >= 150 && $(element).height() >= 150) {
+		return true;
 	}
-});
 
+	return false;
+}
+// 得到图片的路径
+function getImgUrl(element) {
+	return $(element).attr('src');
+}
 
+// 创建收藏按钮
+function createCollection(element) {
+	var $btn = $('<span>收藏</span>').css({
+		'position':'absolute',
+		'background' : 'orange',
+		'width'	: '40px',
+		'height' : '30px',
+		'text-align' : 'center',
+		'line-height' : '30px',
+		'display': 'none'
+	}).on('click', function() {
+		sendMsg({
+			method : "addImage",
+			imgUrl : getImgUrl(element),
+			pageUrl : "http://www.baidu.com",
+			title : "标题"
+		}, function(response) {
+			if (response.code == 0) {
+				alert('添加成功');
+			}else {
+				alert('失败');
+			}
+		});
+	}).hover(function() {
+		$(this).css({
+			'background' : 'gray',
+			'display' : 'inline'
+		});
+	}, function() {
+		$(this).css({
+			'background' : 'orange',
+			'display' : 'none'
+		});
+	});
+
+	$(element).parent().append($btn);
+	$(element).hover(function(){
+		$btn.css({
+			'display': 'inline',
+			'left': $(element).position().left + 50 + 'px',
+			'top' : $(element).position().top + 50 +  'px'
+		});
+	}, function(){
+		$btn.css('display', 'none');
+	});
+}
+
+function sendMsg(data, func) {
+	chrome.runtime.sendMessage(data, function(response) {
+		func(response);
+	});
+}
+
+// network
+function addImage() {
+	$.ajax({  
+        type:'post',  
+        traditional :true,  
+        url:'http://127.0.0.1:5000/api/images/add',  
+        data:{imgUrl: "imgUrl", pageUrl:"http://oi7yis5b9.bkt.clouddn.com/Flt4vJTpXudXKn2WIYtLn7UHHz8c", linkUrl:"http://oi7yis5b9.bkt.clouddn.com/Flt4vJTpXudXKn2WIYtLn7UHHz8c"},  
+        success:function(data){  
+		    if (data['status']['code'] == 000) {
+		    	// 添加图片成功，显示添加标签界面
+
+			}else {
+				alert('添加图片失败');
+			}
+        }  
+    });
+}

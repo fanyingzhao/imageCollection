@@ -14,7 +14,8 @@
   	},
   	"permissions" : [
   		"contextMenus",
-  		"http://*/"
+  		"http://*/",
+      "tabs"
   	],
   	"background" : {
   		"scripts" : [
